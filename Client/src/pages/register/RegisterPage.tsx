@@ -1,4 +1,3 @@
-import React from 'react'
 import logoDat from '../../assets/images/logo.png'
 import backgroudForm from '../../assets/images/backgoundFormRegister.jpg'
 import RegisterForm from './RegisterForm'

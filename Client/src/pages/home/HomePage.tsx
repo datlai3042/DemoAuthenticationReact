@@ -21,8 +21,6 @@ const HomePage = () => {
       const pathName = useLocation().pathname
       const user = useSelector((state: RootState) => state.auth.user) as User.UserSchema
 
-      const getOauthUrl = getOauthWithGoogle()
-
       const getMeQuery = useQuery({
             queryKey: ['get-me'],
             queryFn: () => UserService.getMe(),
