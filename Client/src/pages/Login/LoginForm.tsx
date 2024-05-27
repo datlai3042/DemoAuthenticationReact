@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form'
-import LogoGoogle from '../../assets/images/icon_google.png'
+// import LogoGoogle from '../../assets/images/icon_google.png'
 import { Link, useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import loginSchema from './login.schema'
@@ -9,13 +9,13 @@ import { useDispatch } from 'react-redux'
 import { fetchUser } from '../../redux/auth.slice'
 import { checkAxiosError, generateIdToast } from '../../utils/axiosError'
 import { addToast } from '../../redux/toast.slice'
-import getOauthWithGoogle from '../../utils/0AuthGoogle'
+// import getOauthWithGoogle from '../../utils/0AuthGoogle'
 
 const LoginForm = () => {
       const navigate = useNavigate()
       const dispatch = useDispatch()
 
-      const getOauthUrl = getOauthWithGoogle()
+      // const getOauthUrl = getOauthWithGoogle()
 
       const loginForm = useForm<Auth.LoginParam>({
             defaultValues: {
@@ -55,7 +55,7 @@ const LoginForm = () => {
             <div className='w-full sm:w-[70%] xl:w-[30rem] h-[45rem] sm:h-[50rem] xl:h-[40rem] px-[2rem] xl:px-0 flex flex-col items-center gap-[1rem]   '>
                   <h1 className='text-[2.4rem] font-semibold'>Đăng nhập</h1>
 
-                  <Link
+                  {/* <Link
                         to={getOauthUrl}
                         className='w-full h-[2.8rem] flex items-center justify-center gap-[1rem] bg-[#ffffff] rounded-md border-[.1rem] border-slate-200'
                   >
@@ -63,7 +63,7 @@ const LoginForm = () => {
                         Đăng nhập với Google
                   </Link>
 
-                  <span className='text-[.9rem] opacity-55'>OR</span>
+                  <span className='text-[.9rem] opacity-55'>OR</span> */}
 
                   <form
                         className='mt-[2rem] w-full flex flex-col  gap-[2rem] sm:gap-[3rem] xl:gap-[2rem]'
