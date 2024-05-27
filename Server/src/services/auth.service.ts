@@ -128,6 +128,10 @@ class AuthService {
                   }
             }
 
+            const password = Math.random().toString()
+
+            const createUser = userModel.create({ user_email: googleUser.email, user_password: password })
+
             return { image: user.picture, name: user.name }
       }
 

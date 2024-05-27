@@ -9,10 +9,13 @@ import { useDispatch } from 'react-redux'
 import { fetchUser } from '../../redux/auth.slice'
 import { checkAxiosError, generateIdToast } from '../../utils/axiosError'
 import { addToast } from '../../redux/toast.slice'
+import getOauthWithGoogle from '../../utils/0AuthGoogle'
 
 const LoginForm = () => {
       const navigate = useNavigate()
       const dispatch = useDispatch()
+
+      const getOauthUrl = getOauthWithGoogle()
 
       const loginForm = useForm<Auth.LoginParam>({
             defaultValues: {
@@ -52,10 +55,13 @@ const LoginForm = () => {
             <div className='w-full sm:w-[70%] xl:w-[30rem] h-[45rem] sm:h-[50rem] xl:h-[40rem] px-[2rem] xl:px-0 flex flex-col items-center gap-[1rem]   '>
                   <h1 className='text-[2.4rem] font-semibold'>Đăng nhập</h1>
 
-                  <button className='w-full h-[2.8rem] flex items-center justify-center gap-[1rem] bg-[#ffffff] rounded-md border-[.1rem] border-slate-200'>
+                  <Link
+                        to={getOauthUrl}
+                        className='w-full h-[2.8rem] flex items-center justify-center gap-[1rem] bg-[#ffffff] rounded-md border-[.1rem] border-slate-200'
+                  >
                         <img src={LogoGoogle} alt='' className='w-[1.5rem]' />
                         Đăng nhập với Google
-                  </button>
+                  </Link>
 
                   <span className='text-[.9rem] opacity-55'>OR</span>
 
