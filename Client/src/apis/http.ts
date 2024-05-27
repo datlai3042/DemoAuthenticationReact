@@ -2,7 +2,7 @@ import axios, { type AxiosInstance } from 'axios'
 import Auth from '../services/auth.service'
 
 // let retry = false
-export const REACT_BACK_END_URL = 'https://backendtiki.onrender.com'
+export const REACT_BACK_END_URL = 'https://backenddemoauth.onrender.com'
 
 class AxiosCustom {
       instance: AxiosInstance
@@ -11,7 +11,7 @@ class AxiosCustom {
 
       constructor() {
             this.instance = axios.create({
-                  baseURL: 'http://localhost:4000',
+                  baseURL: REACT_BACK_END_URL,
                   timeout: 1000 * 70,
                   headers: {
                         'Content-Type': 'application/json'
