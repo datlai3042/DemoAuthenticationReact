@@ -1,12 +1,13 @@
 import { compare } from 'bcrypt'
-import { NextFunction, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ObjectId } from 'mongoose'
-import { AuthFailedError, BadRequestError, NotFoundError, ResponseError } from '~/Code/error.response'
+import { AuthFailedError, BadRequestError, ForbiddenError, NotFoundError, ResponseError } from '~/Code/error.response'
 import keyStoreModel from '~/models/keyStore.model'
 import userModel, { UserDocument } from '~/models/user.model'
 import { Auth, HTTP, User } from '~/type'
 import { hassPassword } from '~/utils/bcrypt'
 import { expriresAT, omit, oneWeek, setCookieResponse } from '~/utils/dataResponse'
+import { getGoogleUser, getOautGoogleToken } from '~/utils/googleOAuth'
 import {
       createPayload,
       fillDataKeyModel,
@@ -24,7 +25,7 @@ class AuthService {
             if (!user_email || !user_password || !user_first_name || !user_last_name)
                   throw new BadRequestError({ metadata: 'Missing Field' })
 
-            const foundEmail = await userModel.findOne({ user_email: userModel })
+            const foundEmail = await userModel.findOne({ user_email })
             if (foundEmail) throw new BadRequestError({ metadata: 'Email đã tồn tại' })
 
             const hashPassword = await hassPassword(user_password)
@@ -57,10 +58,11 @@ class AuthService {
             if (!createKey) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
 
             setCookieResponse(res, oneWeek, 'client_id', createUser._id as string, { httpOnly: true })
-            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', token.access_token, {
                   httpOnly: true
             })
+            setCookieResponse(res, oneWeek, 'isLogin', 'true')
+
             setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
 
             return {
@@ -75,7 +77,7 @@ class AuthService {
             const { user_email, user_password } = req.body
 
             const foundUser = await userModel.findOne({ user_email })
-            if (!foundUser) throw new NotFoundError({ metadata: 'Không tìm thấy user' })
+            if (!foundUser) throw new NotFoundError({ metadata: 'Không tìm thấy không tin đăng nhập' })
 
             const checkPassword = compare(user_password, foundUser?.user_password)
             if (!checkPassword) throw new AuthFailedError({ metadata: 'Something wrongs...' })
@@ -100,9 +102,10 @@ class AuthService {
 
             if (!keyStore) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
             setCookieResponse(res, oneWeek, 'client_id', foundUser._id as string, { httpOnly: true })
-            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
             setCookieResponse(res, oneWeek, 'refresh_token', refresh_token, { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'isLogin', 'true')
+
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
                   user: omit(foundUser.toObject(), ['user_password']),
@@ -113,6 +116,21 @@ class AuthService {
             }
       }
 
+      static async loginWithGoogle(req: Request<unknown, unknown, unknown, { code: any }>) {
+            const { code } = req.query
+            const token = await getOautGoogleToken(code)
+            const { id_token, access_token } = token
+            const googleUser: any = await getGoogleUser({ id_token, access_token })
+            const user = googleUser.data
+            if ('verified_email' in googleUser) {
+                  if (!googleUser.verified_email) {
+                        new ForbiddenError({ metadata: 'block' })
+                  }
+            }
+
+            return { image: user.picture, name: user.name }
+      }
+
       static async logout(req: HTTP.CustomRequest, res: Response, next: NextFunction) {
             const user = req.user as UserDocument
             const { force } = req.body
@@ -121,6 +139,11 @@ class AuthService {
                   return { message: 'Token hết hạn và đẵ buộc phải logout', force }
             }
             await keyStoreModel.findOneAndDelete({ user_id: user._id })
+            res.clearCookie('client_id')
+            res.clearCookie('refresh_token')
+            res.clearCookie('access_token')
+            res.clearCookie('isLogin')
+
             return { message: 'Logout thành công' }
       }
 

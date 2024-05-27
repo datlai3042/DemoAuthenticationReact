@@ -24,6 +24,7 @@ namespace API {
 
 namespace User {
       type UserSchema = {
+            _id: string
             user_first_name: string
             user_last_name: string
             user_email: string
@@ -42,5 +43,14 @@ namespace Auth {
             user_last_name: string
             user_email: string
             user_password: string
+      }
+}
+
+namespace Toast {
+      type TToast = {
+            type: 'SUCCESS' | 'ERROR' | 'WARNNING'
+            message: string
+            id: string
+            subMessage?: string[]
       }
 }

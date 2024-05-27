@@ -12,7 +12,7 @@ class AxiosCustom {
       constructor() {
             this.instance = axios.create({
                   baseURL: 'http://localhost:4000',
-                  timeout: 1000 * 60,
+                  timeout: 1000 * 70,
                   headers: {
                         'Content-Type': 'application/json'
                   }
@@ -31,10 +31,11 @@ class AxiosCustom {
                   (res) => res,
                   async (error) => {
                         const originalRequest = error.config
+                        console.log('rf')
                         if (
                               error.response?.status === 401 &&
                               error.response?.data.message === 'Unauthorized' &&
-                              error.response?.data?.detail === 'Token hết hạn' &&
+                              error.response?.data?.metadata === 'Token không đúng' &&
                               !originalRequest.retry
                         ) {
                               originalRequest.retry = true

@@ -5,9 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import registerSchema from './register.schema'
 import { useMutation } from '@tanstack/react-query'
 import Auth from '../../services/auth.service'
+import { fetchUser } from '../../redux/auth.slice'
+import { useDispatch } from 'react-redux'
+import { checkAxiosError, generateIdToast } from '../../utils/axiosError'
+import { addToast } from '../../redux/toast.slice'
 
 const RegisterForm = () => {
       const navigate = useNavigate()
+      const dispatch = useDispatch()
 
       const registerForm = useForm<Auth.RegisterParam>({
             defaultValues: {
@@ -22,7 +27,19 @@ const RegisterForm = () => {
       const registerMutation = useMutation({
             mutationKey: ['register'],
             mutationFn: (data: Auth.RegisterParam) => Auth.register(data),
-            onSuccess: () => navigate('/dashboard')
+            onSuccess: (res) => {
+                  const { user } = res.data.metadata
+                  localStorage.setItem('client-id', JSON.stringify(user._id))
+                  dispatch(fetchUser({ user, isLogin: true }))
+
+                  navigate('/')
+            },
+            onError: (res) => {
+                  if (checkAxiosError<API.ResponseCommomApi<string>>(res)) {
+                        const errorMessage = res.response?.data.metadata
+                        dispatch(addToast({ type: 'ERROR', id: generateIdToast(), message: errorMessage as string }))
+                  }
+            }
       })
 
       console.log({ error: registerForm.formState.errors })
@@ -46,11 +63,11 @@ const RegisterForm = () => {
                   <span className='text-[.9rem] opacity-55'>Hoặc</span>
 
                   <form
-                        className='mt-[2rem] w-full flex flex-col  gap-[2rem] sm:gap-[3rem] xl:gap-[2rem]'
+                        className='mt-[2rem] w-full flex flex-col  gap-[2rem] sm:gap-[3rem] xl:gap-[1.4rem]'
                         onSubmit={registerForm.handleSubmit(onSubmit)}
                   >
-                        <div className='w-[calc(100%-1rem)] flex gap-[1rem]'>
-                              <div className='w-[50%] flex flex-col gap-[.5rem]'>
+                        <div className='w-[calc(100%-1rem)] flex flex-col sm:flex-row gap-[1rem]'>
+                              <div className='w-full sm:w-[50%] flex flex-col  gap-[.5rem]'>
                                     <label
                                           htmlFor='first_name'
                                           className='text-[1.2rem] font-normal hover:cursor-pointer'
@@ -68,7 +85,7 @@ const RegisterForm = () => {
                                           <span className='text-red-600'>{error_first_name.message}</span>
                                     )}
                               </div>
-                              <div className='w-[50%] flex flex-col gap-[.5rem]'>
+                              <div className='w-full sm:w-[50%] flex flex-col gap-[.5rem]'>
                                     <label
                                           htmlFor='last_name'
                                           className='text-[1.2rem] font-normal hover:cursor-pointer'

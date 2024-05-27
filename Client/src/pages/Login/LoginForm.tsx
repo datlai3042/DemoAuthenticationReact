@@ -5,9 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import loginSchema from './login.schema'
 import { useMutation } from '@tanstack/react-query'
 import Auth from '../../services/auth.service'
+import { useDispatch } from 'react-redux'
+import { fetchUser } from '../../redux/auth.slice'
+import { checkAxiosError, generateIdToast } from '../../utils/axiosError'
+import { addToast } from '../../redux/toast.slice'
 
 const LoginForm = () => {
       const navigate = useNavigate()
+      const dispatch = useDispatch()
 
       const loginForm = useForm<Auth.LoginParam>({
             defaultValues: {
@@ -20,7 +25,19 @@ const LoginForm = () => {
       const loginMutation = useMutation({
             mutationKey: ['register'],
             mutationFn: (data: Auth.LoginParam) => Auth.login(data),
-            onSuccess: () => navigate('/dashboard')
+            onSuccess: (res) => {
+                  const { user } = res.data.metadata
+                  localStorage.setItem('client-id', JSON.stringify(user._id))
+                  dispatch(fetchUser({ user, isLogin: true }))
+                  navigate('/')
+            },
+            onError: (res) => {
+                  if (checkAxiosError<API.ResponseCommomApi<string>>(res)) {
+                        const errorMessage = res.response?.data.metadata
+                        console.log({ errorMessage })
+                        dispatch(addToast({ type: 'ERROR', id: generateIdToast(), message: errorMessage as string }))
+                  }
+            }
       })
 
       console.log({ error: loginForm.formState.errors })

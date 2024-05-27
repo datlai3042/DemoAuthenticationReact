@@ -6,8 +6,8 @@ import authentication from '~/middlewares/authentication'
 const authRouter = Router()
 
 authRouter.post('/register', asyncHandler(AuthController.register))
-authRouter.use(authentication)
 authRouter.post('/login', asyncHandler(AuthController.login))
+authRouter.use(authentication)
 authRouter.post('/logout', asyncHandler(AuthController.logout))
 authRouter.post('/refresh-token', asyncHandler(AuthController.refresh_token))
 

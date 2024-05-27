@@ -9,7 +9,7 @@ class Auth {
       static async login(form: Auth.LoginParam) {
             const { user_email, user_password } = form
 
-            return axiosCustom.post<API.ResponseRegister<{ user: User.UserSchema; access_token: string }>>(
+            return axiosCustom.post<API.ResponseCommomApi<{ user: User.UserSchema }>>(
                   '/v1/api/auth/login',
                   { user_email, user_password },
                   { withCredentials: true }
@@ -20,7 +20,7 @@ class Auth {
             console.log('gọi api', form)
 
             const { user_email, user_first_name, user_last_name, user_password } = form
-            return axiosCustom.post<API.ResponseCommomApi<{ user: User.UserSchema; access_token: string }>>(
+            return axiosCustom.post<API.ResponseCommomApi<{ user: User.UserSchema }>>(
                   '/v1/api/auth/register',
                   { user_email, user_password, user_first_name, user_last_name },
                   { withCredentials: true }
@@ -28,21 +28,14 @@ class Auth {
       }
 
       static async logout() {
-            return axiosCustom.post('/v1/api/auth/logout')
+            return axiosCustom.post('/v1/api/auth/logout', {}, { withCredentials: true })
       }
 
       static async refresh_token() {
-            // store.dispatch(
-            //       addToast({
-            //             type: 'WARNNING',
-            //             message: 'Đang gọi để lấy lại access_token',
-            //             id: Math.random().toString()
-            //       })
-            // )
             return axiosCustom.post<{ metadata: { token: string } }>(
-                  '/v1/api/auth/rf',
+                  '/v1/api/auth/refresh-token',
                   {},
-                  { headers: { RefreshToken: 'Ok' }, withCredentials: true }
+                  { withCredentials: true }
             )
       }
 }

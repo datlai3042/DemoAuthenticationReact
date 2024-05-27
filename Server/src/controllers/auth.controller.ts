@@ -19,6 +19,13 @@ class AuthController {
       static async refresh_token(req: Request, res: Response, next: NextFunction) {
             return new OK({ metadata: await AuthService.refresh_token(req, res, next) }).send(res)
       }
+      static async loginWithGoogle(
+            req: Request<unknown, unknown, unknown, { code: any }>,
+            res: Response,
+            next: NextFunction
+      ) {
+            new OK({ metadata: await AuthService.loginWithGoogle(req) }).send(res)
+      }
 }
 
 export default AuthController
